@@ -1,0 +1,31 @@
+.pointer{
+  cursor: pointer;
+}
+.pointer_drop{
+  cursor: no-drop;
+}
+.flex_center_end{
+  display: flex;
+  align-items: center;
+  justify-content: end;
+}
+.flex_center{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.flex_col_center{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.flex_center_between{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.flex{
+  display: flex;
+  align-items: center;
+}
