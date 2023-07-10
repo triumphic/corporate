@@ -32,7 +32,6 @@
         class="avatar-uploader"
         action=""
         name="image"
-        :data="uploadData"
         :http-request="importFile"
         :show-file-list="false"
         accept=".jpg,.jpeg,.png,gif,JPG,JPEG,PNG"
@@ -57,6 +56,8 @@ import { useRouter } from 'vue-router';
 import { setCookie,getCookie } from '@/utils/cache/cookies.ts'
 import { getCityEnvent, companyCreate, uploadImgEvent,companyUpdate,companyView,eventUserView } from '@/api/index.ts'
 import { ElMessage } from "element-plus"
+import { messageUnreadCount } from '@/api/message.ts'
+import { messageStore } from '@/stores/modules/app.ts'
 
 interface FormInter {
   name: string
@@ -141,7 +142,7 @@ const importFile = (options:any):Promise<unknown>=>{
   })
 }
 /**点击完成注册 */
-const completeRegistration = async () =>{
+const completeRegistration = () =>{
   if ( form.name == '' ) {
     ElMessage.warning('请输入公司全称')
     return
@@ -163,15 +164,23 @@ const completeRegistration = async () =>{
     return
   }
   if ( isEdit.value ) {//编辑
-    await companyUpdate(form,true).then(()=>{})
+    companyUpdate(form,true).then(()=>{
+      lastEvent()
+    })
   } else {
-    await companyCreate(form,true).then(()=>{})
+    companyCreate(form,true).then(()=>{
+      lastEvent()
+    })
   }
+}
+const lastEvent = () => {
   eventUserView({}).then((res:any)=>{
     setCookie('company_info', res.data.company)
+    router.push('/company_home')
   })
-  router.push('/company_home')
-  
+  messageUnreadCount().then((res:any)=>{
+    messageStore().setInfo(res.data)
+  })
 }
 </script>
 <style scoped lang="scss">

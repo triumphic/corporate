@@ -1,10 +1,10 @@
 import axios, { type AxiosInstance, type AxiosRequestConfig } from "axios"
-// import { useUserStoreHook } from "@/store/modules/user"
-import { ElMessage, ElLoading } from "element-plus"
+import { ElMessage, ElLoading, ElMessageBox } from "element-plus"
 import { get } from "lodash-es"
 import { getCookie, delAllCookie } from '@/utils/cache/cookies.ts'
-// import { getSession, getLocal } from '@/utils/cache/storage.ts'
-// import router from "@/router/index"
+import router from "@/router/index"
+import { h } from 'vue'
+
 /** 创建请求实例 */
 function createService() {
   // 创建一个 Axios 实例
@@ -32,7 +32,7 @@ function createService() {
       // apiData 是 API 返回的数据
       const apiData = response.data as any
       // 这个 Code 是和后端约定的业务 status
-      let code = apiData.status
+      let code = apiData.code
       if (apiData.success) { //通过success判断请求是否成功
         code = '0'
       }
@@ -44,16 +44,26 @@ function createService() {
         switch (code) {
           case '0':
             return apiData
-          // case '4002':
-          //   //登录超时或者多台设备登录
-          //   delAllCookie();//清除所以的cookie
-          //   localStorage.clear();
-          //   sessionStorage.clear()
-          //   router.push("/login");
-          //   return;
+          case '4005':
+            //登录失效
+            delAllCookie();//清除所以的cookie
+            localStorage.clear();
+            sessionStorage.clear()
+            router.push("/login");
+            return;
           default:
             if ( typeof apiData.errors == 'string') {
               ElMessage.error(apiData.errors || "Error")
+            } else {
+              let arr:any = []
+              for (let item in apiData.errors) {
+                arr.push(h('p', null, apiData.errors[item]))
+              }
+              ElMessageBox({
+                title: '提示',
+                message: h('p', null, [arr]),
+                confirmButtonText: '我知道了',
+              })
             }
             return Promise.reject(apiData || "Error")
         }

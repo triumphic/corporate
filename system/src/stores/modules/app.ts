@@ -9,3 +9,13 @@ export const infoStore = defineStore('corp', () => {
   }
   return { value, setInfo }
 })
+
+/**消息个数 */
+export const messageStore = defineStore('message', () => {
+  let value:any = ref(0);
+  const setInfo = (val: any) => {
+    value.value = val
+  }
+  return { value, setInfo }
+})
+

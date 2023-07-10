@@ -38,6 +38,7 @@ router.beforeEach((to,from, next) =>{
   } else {
     if (to.path != '/login' && to.path != '/home' && to.path != '/perfect_company') {
       let company_info = getCookie('company_info')
+      console.log(company_info,to.path)
       if (!company_info || !company_info.id) {  // 企业不存在
         next('/perfect_company')
       } else {

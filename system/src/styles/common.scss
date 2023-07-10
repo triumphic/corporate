@@ -2,7 +2,7 @@
   cursor: pointer;
 }
 .pointer_drop{
-  cursor: no-drop;
+  cursor: no-drop !important;
 }
 .flex_center_end{
   display: flex;
@@ -28,4 +28,12 @@
 .flex{
   display: flex;
   align-items: center;
+}
+.pagination{
+  background: #ffffff;
+  text-align: center;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }

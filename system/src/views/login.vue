@@ -16,10 +16,11 @@
 
       <div class="forgetPsd">
         <el-checkbox v-model="checked"><template #default></template></el-checkbox>
-        我已阅读并同意信鸽网<span>《用户服务协议》</span>及<span>《个人信息保护政策》</span>
+        我已阅读并同意信鸽网<span class="pointer" @click="agreementEvent('agreement')">《用户服务协议》</span>及<span class="pointer" @click="agreementEvent('legalNotice')">《个人信息保护政策》</span>
       </div>
     </div>
   </div>
+  <agreement v-if="agree_info.visible" :visible="agree_info.visible" :type="agree_info.type" @close="agree_info.visible=false"></agreement>
 </template>
 <script setup lang="ts">
 import { ref,reactive,onBeforeMount, onUnmounted } from 'vue'
@@ -28,7 +29,9 @@ import { ElMessage } from "element-plus"
 import { sendCaptcha, captchaLogin} from '@/api/login.ts'
 import { setCookie } from '@/utils/cache/cookies.ts'
 import { infoStore } from '@/stores/modules/app.ts'
-
+import agreement from '@/components/agreement.vue';
+import { messageUnreadCount } from '@/api/message.ts'
+import { messageStore } from '@/stores/modules/app.ts'
 const route = useRoute()
 const router = useRouter()
 
@@ -36,6 +39,7 @@ const loading = ref(false)
 const checked = ref(false)
 const title = ref('用户登录')
 const yzm_hint = ref('获取验证码')
+const agree_info = ref({visible:false,type: ''})
 const form = reactive({
   phone: '',
   yzm: ''
@@ -51,6 +55,10 @@ onBeforeMount(()=>{
 onUnmounted(()=>{
   clearInterval(timell)
 })
+const agreementEvent = (type:string) => {
+  agree_info.value.type = type;
+  agree_info.value.visible = true
+}
 /**登录 */
 const submitForm = ()=>{
   // router.push({path:'company_home'})
@@ -62,6 +70,10 @@ const submitForm = ()=>{
   if (form.yzm == '') {
     ElMessage.error('请输入验证码')
     return false;
+  }
+  if (!checked.value) {
+    ElMessage.warning('请阅读并同意信鸽网《用户服务协议》及个人信息保护政策》')
+    return
   }
   loading.value = true;
   captchaLogin({
@@ -76,9 +88,12 @@ const submitForm = ()=>{
     if (!res.data.company) { // 没有绑定企业，需要跳转到完善企业信息页面
       router.push({path:'perfect_company'})
     }else{
+      router.push({path:'company_home'})
       setCookie('company_info', res.data.company)
+      messageUnreadCount().then((res:any)=>{
+        messageStore().setInfo(res.data)
+      })
     }
-    console.log(res)
   }).catch(()=>{
     loading.value = false;
   })
